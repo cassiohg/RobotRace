@@ -424,7 +424,6 @@ public class RobotRace extends Base {
         public void draw(boolean stickFigure) {
             gl.glPushMatrix();
                 gl.glTranslated(position.x(), position.y(), position.z() + torsoHeight);
-                System.out.println(rotationAngle);
                 gl.glRotated(rotationAngle, 0f, 0f, 1f);
                 
                 //change class of implementations depending on boolean value
