@@ -5,8 +5,7 @@ import javax.media.opengl.glu.GLUquadric;
 import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
-import com.jogamp.opengl.util.texture.*;
-import java.nio.ByteBuffer;
+
 
 // Cássio Holanda Gonçalves 0877290 
 // Eduardo Piñar Menoyo 0875997
@@ -216,7 +215,10 @@ public class RobotRace extends Base {
         double x,y,z,distX,distY;
         x=central.x();   y=central.y();  z=central.z();
         Vector pos;
-        // Draw the robots 
+        /**
+         * Drawing the robots.
+         * This loop will iterate on each robot and set each position of them in the race track.
+         */
         for(r=0;r<4;r++) {
            robots[r].draw(gs.showStick);
           
@@ -813,7 +815,7 @@ public class RobotRace extends Base {
          * selected camera mode.
          */
         public void update(int mode) {
-            robots[0].toString();
+            
             
             // Helicopter mode
             if (1 == mode) {  
@@ -829,7 +831,7 @@ public class RobotRace extends Base {
                 
             // Auto mode
             } else if (4 == mode) { 
-                // code goes here...
+                setAutoMode();
                 
             // Default mode
             } else {
@@ -932,10 +934,28 @@ public class RobotRace extends Base {
             y=raceTrack.getPoint(time).y();
             z=robots[robots.length-1].height;
             
-            
             this.eye = new Vector(x,y,z);
             this.center=raceTrack.getTangent(time);
             this.up=Vector.Z;
+        }
+        
+        /**
+         * Computes {@code eye}, {@code center}, and {@code up}, changing each 
+         * short period of time to the different camera modes
+         */
+        private void setAutoMode(){
+            double mod=(gs.tAnim%15);
+            int changeTo=(int) floor(mod);
+            System.out.println(changeTo);
+            if(changeTo<5){
+                setHelicopterMode();
+            }else if(changeTo>=5 && changeTo<10){
+                setFirstPersonMode();
+            }else {
+                setMotorCycleMode();
+            }
+            
+            
         }
         
     }
