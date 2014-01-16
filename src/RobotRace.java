@@ -5,7 +5,7 @@ import javax.media.opengl.glu.GLUquadric;
 import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
-
+import com.jogamp.opengl.util.texture.*;
 
 // Cássio Holanda Gonçalves 0877290 
 // Eduardo Piñar Menoyo 0875997
@@ -191,10 +191,10 @@ public class RobotRace extends Base {
         }
         
         // Draw the first robot
-        robots[0].draw(false);
-        robots[1].draw(false);
+//        robots[0].draw(false);
+//        robots[1].draw(false);
         robots[2].draw(false);
-        robots[3].draw(false);
+//        robots[3].draw(false);
         
         for(Robot r:robots) {
            double time = (gs.tAnim/10)%1;
@@ -349,16 +349,27 @@ public class RobotRace extends Base {
         private final Material material;
         
         
-        private Vector torsoA, torsoB, torsoC, torsoD;
-        private Vector torsoE, torsoF, torsoG, torsoH;
-        private Vector leftLeg, rightLeg, leftArm, rightArm, neckAndHead;
-        private double height,shoulderHeight, waistHeight, torsoThickness, torsoHeight, rotationAngle;
-        Shapes shapeDrawer;
-        SolidShapes solid = new SolidShapes();
-        WiredShapes wired = new WiredShapes();
+        private Vector torsoA, torsoB, torsoC, torsoD; //top surface points of torso
+        private Vector torsoE, torsoF, torsoG, torsoH; //bottom surface points of torso
+        private Vector leftLeg, rightLeg, leftArm, rightArm, neckAndHead; // points where legs, arms and neck will join the toso
+        private double height, //height of the robot
+                shoulderHeight, //distance between floor and top surface of the torso
+                waistHeight, // distance between floor and bottom surface of the torso
+                torsoThickness, // how fat is the robot
+                torsoHeight, // distance between top and bottom surfaces of the torso
+                rotationAngle; //the angle the robot will need to rotate while running in the track
+        Shapes shapeDrawer; //object that will draw some parts of the robot
+        SolidShapes solid = new SolidShapes(); //implementation of the drawing of some parts of the robot as solid shapes
+        WiredShapes wired = new WiredShapes(); //implementation of the drawing of some parts of the robot as wired shapes
         int robotSpeedMovement;
         
-        public Vector position;
+        public Vector position; //position of the robot
+        
+        int minLimbAngle = -40; //the min angle the limb can rotate to
+        int maxLimbAngle = 60; //the max angle a limb can rotate to
+        int limbMovementAngle = maxLimbAngle - minLimbAngle; //the total arc of movement of the limb in degrees
+        double limbAngle;
+        
         
         /**
          * Constructs the robot with initial parameters.
@@ -373,28 +384,24 @@ public class RobotRace extends Base {
             this.position = new Vector(x,y,z);
             robotSpeedMovement = speed;
             
-            // width of the shoulder of the robot
-            // shoulder cannot be too narrow
+            // width of the shoulder of the robot. shoulder cannot be too narrow
             shoulderWidth /= 2;
             if (shoulderWidth < 0.4d) shoulderWidth = 0.4d;
             
-            // width of the waist of the robot
-            // waist cannot be too narrow
+            // width of the waist of the robot. waist cannot be too narrow
             waistWidth /= 2;
             if (waistWidth < 0.2d) waistWidth = 0.2d;
             
-            
             // height of the robot, it cannot be too short
+            height = heightOfRobot;
             if (height < 1.5d) height = 1.5d;
-            
             
             //calculation proportion between neck and head and the rest of the body
             shoulderHeight = height * 0.8;
             waistHeight = shoulderHeight/2;
             torsoHeight = shoulderHeight - waistHeight;
             
-            // thickness of the torso of the robot
-            // torso cannot be too thin
+            // thickness of the torso of the robot. torso cannot be too thin
             torsoThickness = thicknessOfTorso/2;
             if (torsoThickness < 0.1d) torsoThickness = 0.1d;
             
@@ -423,26 +430,31 @@ public class RobotRace extends Base {
          */
         public void draw(boolean stickFigure) {
             gl.glPushMatrix();
-                gl.glTranslated(position.x(), position.y(), position.z() + torsoHeight);
-                gl.glRotated(rotationAngle, 0f, 0f, 1f);
+                limbAngle();
+                //the point where the robot starts to be drawn
+                gl.glTranslated(position.x(), position.y(), position.z() + torsoHeight + runningBouce());
+                //direction the robot is facing, only rotating in the Z axis as the track is flat
+                //rotationAngle is calculated in another method
+                gl.glRotated(rotationAngle, 0f, 0f, 1f); 
                 
-                //change class of implementations depending on boolean value
+                //change class of implementations depending on stickFigure boolean value
                 if(stickFigure){
                     shapeDrawer = wired;
                 } else {
                     shapeDrawer = solid;
                 }
                 
+                //Torso
+                //inclination of the torso depending on speed. the faster the robot the more the torso inclines forward
+                gl.glRotated(robotSpeedMovement/10, -1f, 0f, 0f);
+                //the 
+                shapeDrawer.drawDeformedCube(new Vector[]{torsoA, torsoB, torsoC, torsoD}, 
+                                             new Vector[]{torsoE, torsoF, torsoG, torsoH});
+                
                 //Left Leg
                 drawLeg(leftLeg, true);
                 //Right Right
                 drawLeg(rightLeg, false);
-                
-                //Torso
-                gl.glRotated(robotSpeedMovement/10, -1f, 0f, 0f);
-                shapeDrawer.drawDeformedCube(new Vector[]{torsoA, torsoB, torsoC, torsoD}, 
-                                             new Vector[]{torsoE, torsoF, torsoG, torsoH});
-                
                 //Left arm
                 drawArm(leftArm, true);
                 //Right arm
@@ -453,25 +465,52 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
        
+        private double runningBouce(){
+            double bounceHeight;
+            
+            if (limbAngle < limbMovementAngle / 2 ) 
+                bounceHeight = limbAngle;
+            else 
+                bounceHeight = limbMovementAngle - limbAngle;
+            
+            return (height * 0.2 / limbMovementAngle) * bounceHeight;
+        }
         
         
-        int initialLegAngle = -40;
-        int maxLegAngle = 60;
-        int legMovementAngle = maxLegAngle - initialLegAngle;
+        private void limbAngle() {
+            double time = gs.tAnim * robotSpeedMovement;
+            limbAngle = time % limbMovementAngle;
+            if( (((long)time)/limbMovementAngle)%2 == 1 ) 
+                limbAngle = limbMovementAngle - limbAngle;
+        }
         
+        
+                
+        /**
+         * calculates the rotation of a limb and set is rotated position
+         * taking into consideration if that limb is moving backwards or forward
+         * (boolean backwards mean if the limb is the right side or left side)
+         */
+        private void limbRotation(boolean backwards) {
+
+            if(backwards) 
+                gl.glRotated(maxLimbAngle - limbAngle, 1f, 0f, 0f);
+            else 
+                gl.glRotated(minLimbAngle + limbAngle, 1f, 0f, 0f);
+        }
+        
+        /**
+         * Draw one leg based on the point where the leg should be drawn
+         * and rotate this leg every drawing to animate the walking.
+         * parameter backwards specify weather it should start rotating backwards
+         * or not. which means each leg have opposite rotations.
+         */
         private void drawLeg(Vector point, boolean backwards) {
             gl.glPushMatrix();
-                //postion of the connection between torso and leg
+                //position of the connection between torso and leg
                 gl.glTranslated(point.x(), point.y(), point.z());
                 
-                double time = gs.tAnim * robotSpeedMovement;
-                double angle = time % legMovementAngle;
-                if( (((long)time)/legMovementAngle)%2 == 1 ) angle = legMovementAngle - angle;
-                
-                if(backwards) 
-                    gl.glRotated(maxLegAngle - angle, 1f, 0f, 0f);
-                else 
-                    gl.glRotated(initialLegAngle + angle, 1f, 0f, 0f);
+                limbRotation(backwards);
                 
                 gl.glColor3f(1f, 1f, 0f);
                 shapeDrawer.drawSphere(torsoThickness, 15, 15);
@@ -486,23 +525,23 @@ public class RobotRace extends Base {
         
         int initialArmAngle = -40;
         int maxArmAngle = 60;
-        int armMovementAngle = maxLegAngle - initialLegAngle;
+        int armMovementAngle = maxArmAngle - initialArmAngle;
         
+       /**
+         * Draw one arm based on the point where the arm should be drawn
+         * and rotate this arm every drawing to animate the walking.
+         * parameter backwards specify weather it should start rotating backwards
+         * or not. which means each arm have opposite rotations.
+         */
         private void drawArm(Vector point, boolean backwards) {
+            //to keep proportion, the arm thickness is based on torso thickness value
             double armThickess = torsoThickness*2/3;
             
             gl.glPushMatrix();
                 //postion of the connection between torso and arm
                 gl.glTranslated(point.x(), point.y(), point.z() -armThickess);
                 
-                double time = gs.tAnim * robotSpeedMovement;
-                double angle = time % legMovementAngle;
-                if( (((long)time)/legMovementAngle)%2 == 1 ) angle = legMovementAngle - angle;
-                
-                if(backwards) 
-                    gl.glRotated(maxLegAngle - angle, 1f, 0f, 0f);
-                else 
-                    gl.glRotated(initialLegAngle + angle, 1f, 0f, 0f);
+                limbRotation(backwards);
                 
                 gl.glColor3f(1f, 1f, 0f);
                 shapeDrawer.drawSphere(armThickess, 10, 10);
@@ -542,20 +581,22 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
         
+        
         public void setRobotPosition(Vector point) {
             position = point;
         }
         
+        //based on the tangent of the robot position in the track, rotates the direction the robot is facing
         public void setRobotRotation(Vector tangent) {
             double x = tangent.x();
             rotationAngle = toDegrees(acos(x/tangent.length()));
             if(position.x() > 0) rotationAngle -= 90;
-            else rotationAngle = 270-rotationAngle;
+            else rotationAngle = 270 - rotationAngle;
         }
         
     }
     
-    //interface that will be used to create
+    //interface that will be used to drawn volumes in wired or solid shapes
     interface Shapes {
         public void drawSphere(double a, int b, int c);
         public void drawCube(float a);
@@ -564,6 +605,7 @@ public class RobotRace extends Base {
         public void drawDeformedCube(Vector[] topPoints, Vector[] bottomPoints);
     }
     
+    //implementation of the solid shapes drawing
     class SolidShapes extends Drawer implements Shapes {
         SolidShapes() {
             typeOfLine = GL_QUADS;
@@ -595,6 +637,7 @@ public class RobotRace extends Base {
         }
     }
     
+    //implementation of the wired shapes drawing
     class WiredShapes extends Drawer implements Shapes {
         WiredShapes() {
             typeOfLine = GL_LINE_LOOP;
@@ -630,34 +673,43 @@ public class RobotRace extends Base {
         }
     }
     
+    //implementing the drawing of the torso
     class Drawer {
         protected int typeOfLine;
         
+        //the torso has 6 surfaces that should be drawn based on 8 vertexes given as parameters, top and bottom vertexes.
         protected void drawDeformedCubeImplementation(Vector[] topPoints, Vector[] bottomPoints){
-            if(topPoints.length == 4 && bottomPoints.length == 4) {
-                Vector[] points = new Vector[4];
-                for(int i = 0; i < 6; i++){
+            //checking if the size of the arrays are correct
+            if(topPoints.length == 4 && bottomPoints.length == 4) { 
+                //array of points that will form one quad surface to be drawn
+                Vector[] points = new Vector[4]; 
+                
+                for(int i = 0; i < 6; i++){ //the 6 surfaces
+                    //making each surface slight lighter than the other so we can clearly see each of them
                     gl.glColor3f(0.1f*(i+1), 0.1f*i, 0.1f*i);
-                    if (i < 4) {
+                    if (i < 4) { // 4 sides surfaces
+                        //all the side surfaces use two top vertexes and two bottom vertexes
+                        //the vertexes in topPoints and bottomPoints array should be, and are, ordered and aligned with each array
+                        //the first vertex on topPoints is right above the first vertex on bottomPoints, and so on.
                         points[0] = topPoints[i];
                         points[1] = bottomPoints[i];
                         points[2] = bottomPoints[(i+1)%4];
                         points[3] = topPoints[(i+1)%4];
-                    } else if (i == 4) {
-                        for (int j = 0; j < 4; j++)
-                            points[j] = topPoints[j];
-                    } else if (i == 5) {
-                        for (int j = 0; j < 4; j++)
-                            points[j] = bottomPoints[j];
+                    } else if (i == 4) { // top surface
+                        points = topPoints;
+                    } else if (i == 5) { // bottom surfaces
+                        points = bottomPoints;
                     }
+                    //now that the vertexes are selected, the quad surface can be drawn
                     drawQuadSurface(points);
                 }
             }
         }
         
+        //drawing one quad surface
         private void drawQuadSurface(Vector[] points){
             if(points.length == 4) {
-                gl.glBegin(typeOfLine);
+                gl.glBegin(typeOfLine); //type of line is specified by the class that extends this class
                     for(int j = 0; j < 4; j++)
                         gl.glVertex3d(points[j].x(), points[j].y(), points[j].z());
                 gl.glEnd();
