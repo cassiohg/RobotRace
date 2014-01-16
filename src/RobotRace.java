@@ -812,7 +812,7 @@ public class RobotRace extends Base {
                 
             // Auto mode
             } else if (4 == mode) { 
-                // code goes here...
+                setAutoMode();
                 
             // Default mode
             } else {
@@ -916,6 +916,21 @@ public class RobotRace extends Base {
             this.eye = new Vector(x,y,z);
             this.center=raceTrack.getTangent(time);
             this.up=Vector.Z;
+        }
+        
+        /**
+         * Computes {@code eye}, {@code center}, and {@code up}, changing each 
+         * short period of time to the different camera modes
+         */
+        private void setAutoMode(){
+            double mod=(gs.tAnim%4);
+            int changeTo;
+            System.out.println(mod);
+            double r=random()*(5 - 1) + 1;
+            changeTo=(int) floor(r);
+            camera.update(changeTo);
+            System.out.println("RANDOM      "+changeTo);
+            
         }
         
     }
