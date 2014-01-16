@@ -5,8 +5,7 @@ import javax.media.opengl.glu.GLUquadric;
 import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
-import com.jogamp.opengl.util.texture.*;
-import java.nio.ByteBuffer;
+
 
 // Cássio Holanda Gonçalves 0877290 
 // Eduardo Piñar Menoyo 0875997
@@ -210,7 +209,10 @@ public class RobotRace extends Base {
         double x,y,z,distX,distY;
         x=central.x();   y=central.y();  z=central.z();
         Vector pos;
-        // Draw the robots 
+        /**
+         * Drawing the robots.
+         * This loop will iterate on each robot and set each position of them in the race track.
+         */
         for(r=0;r<4;r++) {
            robots[r].draw(gs.showStick);
           
@@ -796,7 +798,7 @@ public class RobotRace extends Base {
          * selected camera mode.
          */
         public void update(int mode) {
-            robots[0].toString();
+            
             
             // Helicopter mode
             if (1 == mode) {  
@@ -912,7 +914,6 @@ public class RobotRace extends Base {
             y=raceTrack.getPoint(time).y();
             z=robots[robots.length-1].height;
             
-            
             this.eye = new Vector(x,y,z);
             this.center=raceTrack.getTangent(time);
             this.up=Vector.Z;
@@ -923,13 +924,17 @@ public class RobotRace extends Base {
          * short period of time to the different camera modes
          */
         private void setAutoMode(){
-            double mod=(gs.tAnim%4);
-            int changeTo;
-            System.out.println(mod);
-            double r=random()*(5 - 1) + 1;
-            changeTo=(int) floor(r);
-            camera.update(changeTo);
-            System.out.println("RANDOM      "+changeTo);
+            double mod=(gs.tAnim%15);
+            int changeTo=(int) floor(mod);
+            System.out.println(changeTo);
+            if(changeTo<5){
+                setHelicopterMode();
+            }else if(changeTo>=5 && changeTo<10){
+                setFirstPersonMode();
+            }else {
+                setMotorCycleMode();
+            }
+            
             
         }
         
