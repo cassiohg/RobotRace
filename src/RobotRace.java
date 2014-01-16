@@ -504,20 +504,26 @@ public class RobotRace extends Base {
          * effect of having each leg hitting the floor with step.
          */
         private double runningBouce(){
-            double bounceHeight;
+            double halfLimbAngle;
             /**
              * bouncing height should meet its maximum value at half the arc value of total limb possible rotation
              * bouncing height value should reach its maximum value for the second time when limbAngle reach for the first time
-             * it means the robot will bounce up and down twice for each movement of one leg. it makes the effect of each leg
-             * moving the robot up for an impulse.
+             * it means the robot will bounce up and down twice for each movement of one leg. 
+             * it makes the effect of each leg moving the robot up for an impulse.
+             * So we need a variable to behave like described and we are using halfLimbAngle
              */
             if (limbAngle < limbMovementAngle / 2 ) 
-                bounceHeight = limbAngle;
+                halfLimbAngle = limbAngle;
             else 
-                bounceHeight = limbMovementAngle - limbAngle;
+                halfLimbAngle = limbMovementAngle - limbAngle;
             
-            //maximum height to bounce is 20% of the height of the robot
-            return (height * 0.2 / limbMovementAngle) * bounceHeight;
+            /**
+             * up to here, halfLimbAngle is in function of limbAngle and still means nothing.
+             * We have decided that the maximum value for bounceHeight has to be 20% of
+             * robot's height. So, 20% of the robot's height is related to the max value 
+             * of bounceHeight, which is half limbMovementAngle, and the halfLimbAngle is related to the bouncing height
+             */
+            return (height * 0.2 / limbMovementAngle) * halfLimbAngle;
         }
         
         /**
@@ -1017,7 +1023,6 @@ public class RobotRace extends Base {
                 gl.glBegin(GL_LINE_LOOP);
                 gl.glColor3f(0f,0f,0f);
                 for(int i=0;i<10;i+=3){
-                    
                     Vector p0=controlPointsOTrack[i];
                     Vector p1=controlPointsOTrack[i+1];
                     Vector p2=controlPointsOTrack[i+2];
@@ -1026,8 +1031,6 @@ public class RobotRace extends Base {
                         Vector v;
                         v = getCubicBezierPnt(dt*j, p0, p1, p2, p3);
                         gl.glVertex3d(v.x(),v.y(),v.z());
-                        System.out.println(dt*j);
-                        System.out.println(v.x()+"  "+v.y()+"   "+v.z());
                     }
                 }
                 gl.glEnd();
