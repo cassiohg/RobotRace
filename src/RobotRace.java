@@ -109,6 +109,9 @@ public class RobotRace extends Base {
         
         // Initialize the terrain
         terrain = new Terrain();
+        
+        
+          
     }
     
     /**
@@ -135,6 +138,8 @@ public class RobotRace extends Base {
         gl.glEnable(GL_TEXTURE_2D);
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         gl.glBindTexture(GL_TEXTURE_2D, 0);
+        
+        
     }
     
     /**
@@ -166,6 +171,7 @@ public class RobotRace extends Base {
         glu.gluLookAt(camera.eye.x(),    camera.eye.y(),    camera.eye.z(),
                       camera.center.x(), camera.center.y(), camera.center.z(),
                       camera.up.x(),     camera.up.y(),     camera.up.z());
+        
     }
     
     /**
@@ -789,6 +795,17 @@ public class RobotRace extends Base {
          */
         public Camera(){
             setDefaultMode();
+            
+//            float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1.0f};
+//            float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
+//            float[] lightPosition =  {0.0f, 0.0f, 2.0f, 1.0f}; //{(float)eye.x() - 1.0f, (float)eye.y() + 1.0f, (float)eye.z()};
+//            
+//            gl.glLightfv(GL_LIGHT1, GL_AMBIENT, lightAmbient, 0);
+//            gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse, 0);
+//            gl.glLightfv(GL_LIGHT1, GL_POSITION, lightPosition, 0);
+//            
+//            gl.glEnable(GL_LIGHT1);
+//            gl.glDisable(GL_LIGHTING);
         }
         
         /**
@@ -818,6 +835,8 @@ public class RobotRace extends Base {
             } else {
                 setDefaultMode();
             }
+            
+            
         }
         
         /**
@@ -848,9 +867,10 @@ public class RobotRace extends Base {
             
             for Y coordiante:
                 Ye - Yc = yDif -> Ye = yDif + Yc
-            calcualted as:
+            calculated as:
                 Ye = gs.cnt.y() + vdist * cos(phi) * sin(theta)
             */
+            
             
             //calculating values of the angles phi and theta
             double phiCos,phiSin,thetaCos,thetaSin,m,x,y,z;
@@ -862,7 +882,7 @@ public class RobotRace extends Base {
             x=thetaCos*m;
             y=thetaSin*m;
             z=phiSin*gs.vDist;
-            //setting new vector for eye point (Why aren't there set functions?)
+            //setting new vector for eye point
             this.eye = new Vector(x,y,z);
             this.center=gs.cnt;
             this.up=Vector.Z;
@@ -1077,22 +1097,49 @@ public class RobotRace extends Base {
          * Can be used to set up a display list.
          */
         public Terrain() {
-            
-            // code goes here ...
+//            int lengthSide = 5;
+//            int slicePerMeter = 10;
+//            Vector[][] ter = new Vector[lengthSide*slicePerMeter][lengthSide*slicePerMeter];
+//            float initialX = -lengthSide/2.0f;
+//            float initialY = -lengthSide/2.0f;
+//            float finalX = lengthSide/2.0f;
+//            float finalY = lengthSide/2.0f;
+//            float z;
+//            for(float x = initialX + 0.1f; x < finalX; x += 0.1f){
+//                for(float y = initialY; y +0.1f < finalY; y += 0.1f) {
+//                    float i = x - 0.1f;
+//                    z = heightAt(i, y);
+////                    if (z > 0.5f) gl.glColor3f(0f, 1.0f, 0f);
+////                    else if (0f < z & z < 0.5f) gl.glColor3f(1.0f, 1.0f, 0f);
+////                    else gl.glColor3f(0f, 0f, 1.0f);
+//                    ter[x*slicePerMeter]
+//                    gl.glVertex3f(i, y, z);
+//
+//                    z = heightAt(x, y);
+//                    if (z > 0.5f) gl.glColor3f(0f, 1.0f, 0f);
+//                    else if (0f < z & z < 0.5f) gl.glColor3f(1.0f, 1.0f, 0f);
+//                    else gl.glColor3f(0f, 0f, 1.0f);
+//                    gl.glVertex3f(x, y, z);
+//
+//                }
+//            }
         }
         
         /**
          * Draws the terrain.
          */
         public void draw() {
-            // code goes here ...
+            
+            
         }
+        
         
         /**
          * Computes the elevation of the terrain at ({@code x}, {@code y}).
          */
         public float heightAt(float x, float y) {
-            return 0; // <- code goes here
+//            return 0.6f * (float)cos((0.3f*x) + (0.2f*y)) + 0.4f * (float)cos(x - (0.5f * y));
+            return 0;
         }
     }
     
