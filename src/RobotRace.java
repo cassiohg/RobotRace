@@ -761,11 +761,11 @@ public class RobotRace extends Base {
 //            float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
 //            float[] lightPosition =  {0.0f, 0.0f, 2.0f, 1.0f}; //{(float)eye.x() - 1.0f, (float)eye.y() + 1.0f, (float)eye.z()};
 //            
-//            gl.glLightfv(GL_LIGHT1, GL_AMBIENT, lightAmbient, 0);
-//            gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse, 0);
-//            gl.glLightfv(GL_LIGHT1, GL_POSITION, lightPosition, 0);
+//            gl.glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient, 0);
+//            gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse, 0);
+//            gl.glLightfv(GL_LIGHT0, GL_POSITION, lightPosition, 0);
 //            
-//            gl.glEnable(GL_LIGHT1);
+//            gl.glEnable(GL_LIGHT0);
 //            gl.glDisable(GL_LIGHTING);
         }
         
