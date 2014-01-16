@@ -5,7 +5,12 @@ import javax.media.opengl.glu.GLUquadric;
 import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
+<<<<<<< HEAD
 import com.jogamp.opengl.util.texture.*;
+=======
+import java.nio.ByteBuffer;
+
+>>>>>>> branch-2
 
 // Cássio Holanda Gonçalves 0877290 
 // Eduardo Piñar Menoyo 0875997
@@ -88,6 +93,7 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0
+   // Initialize robot 0
         robots[0] = new Robot(Material.GOLD, 8.5d, 0d, 1d, 0.8d, 0.4d, 1.8d, 0.3d, 100);
         
         // Initialize robot 1
@@ -98,7 +104,7 @@ public class RobotRace extends Base {
 
         // Initialize robot 3
         robots[3] = new Robot(Material.ORANGE, 11.5d, 0d, 1d, 0.8d, 0.4d, 1.8d, 0.3d, 250);
-        
+       
         // Initialize the camera
         camera = new Camera();
         
@@ -153,7 +159,7 @@ public class RobotRace extends Base {
         and the width given by the assigment
         */
         glu.gluPerspective(toDegrees(atan2(gs.vWidth/2,gs.vDist)) * 2,
-                          (float)gs.w / (float)gs.h, 0.1, 100);
+                          (float)gs.w / (float)gs.h, 0.1*gs.vDist, 10.0*gs.vDist);
         
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
@@ -171,6 +177,7 @@ public class RobotRace extends Base {
      */
     @Override
     public void drawScene() {
+        int r;
         // Background color.
         gl.glClearColor(1f, 1f, 1f, 0f);
         
@@ -189,6 +196,7 @@ public class RobotRace extends Base {
         if (gs.showAxes) {
             drawAxisFrame();
         }
+<<<<<<< HEAD
         
         // Draw the first robot
 //        robots[0].draw(false);
@@ -202,13 +210,51 @@ public class RobotRace extends Base {
            r.setRobotRotation(raceTrack.getTangent(time));
         }
         
+=======
+>>>>>>> branch-2
         // Draw race track
         raceTrack.draw(gs.trackNr);
         
         // Draw terrain
         terrain.draw();
         
-       
+        double time = (gs.tAnim/10)%1;
+        Vector central = raceTrack.getPoint(time);
+        double x,y,z,distX,distY;
+        x=central.x();   y=central.y();  z=central.z();
+        Vector pos;
+        // Draw the robots 
+        for(r=0;r<4;r++) {
+           robots[r].draw(gs.showStick);
+          
+           if(r==0){
+                distX=1.5*cos(2*PI*time);
+                distY=1.5*sin(2*PI*time);
+                pos=new Vector(x-distX,y-distY,z);
+                robots[r].setRobotPosition(pos);
+           }
+           else if(r==1){
+               distX=0.5*cos(2*PI*time);
+               distY=0.5*sin(2*PI*time);
+               pos=new Vector(x-distX,y-distY,z);
+               robots[r].setRobotPosition(pos);
+           }
+           else if(r==2){
+               distX=0.5*cos(2*PI*time);
+               distY=0.5*sin(2*PI*time);
+               pos=new Vector(x+distX,y+distY,z);
+               robots[r].setRobotPosition(pos);
+           }
+           else if(r==3){
+               distX=1.5*cos(2*PI*time);
+               distY=1.5*sin(2*PI*time);
+               pos=new Vector(x+distX,y+distY,z);
+               robots[r].setRobotPosition(pos);
+           }
+           
+           
+           robots[r].setRobotRotation(raceTrack.getTangent(time));
+        }
     }
     
     
@@ -488,6 +534,26 @@ public class RobotRace extends Base {
             //maximum height to bounce is 20% of the height of the robot
             return (height * 0.2 / limbMovementAngle) * bounceHeight;
         }
+<<<<<<< HEAD
+=======
+        
+        /**
+         * Calculate the angle a limb of the robot should rotate given the time and speed
+         * of the robot.
+         */
+        private void limbAngle() {
+            /**
+             * multiplying the gs.tAnim by the speed of the robot, give me an increasing 
+             * number that is bigger, the bigger the robotSpeed is. Then, this number
+             * can be used to define how fast the robot limbs rotate move. Because
+             * the faster the robot, the faster its limbs should rotate.
+             */
+            double time = gs.tAnim * robotSpeed;
+            limbAngle = time % limbMovementAngle;
+            if( (((long)time)/limbMovementAngle)%2 == 1 ) 
+                limbAngle = limbMovementAngle - limbAngle;
+        }
+>>>>>>> branch-2
         
         /**
          * Calculate the angle a limb of the robot should rotate given the time and speed
@@ -506,6 +572,7 @@ public class RobotRace extends Base {
                 limbAngle = limbMovementAngle - limbAngle;
         }
         
+<<<<<<< HEAD
         
                 
         /**
@@ -520,6 +587,21 @@ public class RobotRace extends Base {
                 gl.glRotated(minLimbAngle + limbAngle, 1f, 0f, 0f);
         }
         
+=======
+                
+        /**
+         * calculates the rotation of a limb and set is rotated position
+         * taking into consideration if that limb is moving backwards or forward
+         * (boolean backwards mean if the limb is the right side or left side)
+         */
+        private void limbRotation(boolean backwards) {
+            if(backwards) 
+                gl.glRotated(maxLimbAngle - limbAngle, 1f, 0f, 0f);
+            else 
+                gl.glRotated(minLimbAngle + limbAngle, 1f, 0f, 0f);
+        }
+        
+>>>>>>> branch-2
         /**
          * Draw one leg based on the point where the leg should be drawn
          * and rotate this leg every drawing to animate the walking.
@@ -737,21 +819,27 @@ public class RobotRace extends Base {
             }
         }
     }
-    
+
     /**
      * Implementation of a camera with a position and orientation. 
      */
     private class Camera {
         
         /** The position of the camera. */
-        public Vector eye = new Vector(3f, 6f, 5f);
+        public Vector eye;
         
         /** The point to which the camera is looking. */
-        public Vector center = Vector.O;
+        public Vector center;
         
         /** The up vector. */
-        public Vector up = Vector.Z;
+        public Vector up;
 
+        /**
+         * Constructor
+         */
+        public Camera(){
+            setDefaultMode();
+        }
         
         /**
          * Updates the camera viewpoint and direction based on the
@@ -815,15 +903,19 @@ public class RobotRace extends Base {
             */
             
             //calculating values of the angles phi and theta
-            double phiCos = cos(gs.phi);
-            double phiSin = sin(gs.phi);
-            double thetaCos = cos(gs.theta);
-            double thetaSin = sin(gs.theta);
-            
+            double phiCos,phiSin,thetaCos,thetaSin,m,x,y,z;
+            phiCos = cos(gs.phi);
+            phiSin = sin(gs.phi);
+            thetaCos = cos(gs.theta);
+            thetaSin = sin(gs.theta);
+            m=phiCos*gs.vDist;
+            x=thetaCos*m;
+            y=thetaSin*m;
+            z=phiSin*gs.vDist;
             //setting new vector for eye point (Why aren't there set functions?)
-            eye = new Vector((gs.vDist * phiCos * thetaCos) + gs.cnt.x(),
-                             (gs.vDist * phiCos * thetaSin) + gs.cnt.y(),
-                             (gs.vDist * phiSin) + gs.cnt.z());
+            this.eye = new Vector(x,y,z);
+            this.center=gs.cnt;
+            this.up=Vector.Z;
         }
         
         /**
@@ -831,7 +923,15 @@ public class RobotRace extends Base {
          * on the helicopter mode.
          */
         private void setHelicopterMode() {
-            // code goes here ...
+            double x,y;
+            double time = (gs.tAnim/10)%1;
+            x=raceTrack.getPoint(time).x();
+            y=raceTrack.getPoint(time).y();
+            
+            this.eye = new Vector(x,y,15);
+            this.center=raceTrack.getPoint(time);
+            this.up=raceTrack.getTangent(time);
+            
         }
         
         /**
@@ -839,7 +939,16 @@ public class RobotRace extends Base {
          * on the motorcycle mode.
          */
         private void setMotorCycleMode() {
-            // code goes here ...
+            double x,y,distX,distY;
+            double time = (gs.tAnim/10)%1;
+            x=raceTrack.getPoint(time).x();
+            y=raceTrack.getPoint(time).y();
+            distX=10*cos(2*PI*time);
+            distY=10*sin(2*PI*time);
+            
+            this.eye = new Vector(x+distX,y+distY,2);
+            this.center=raceTrack.getPoint(time);
+            this.up=Vector.Z;
         }
         
         /**
@@ -847,7 +956,16 @@ public class RobotRace extends Base {
          * on the first person mode.
          */
         private void setFirstPersonMode() {
-            // code goes here ...
+            double x,y,z;
+            double time = (gs.tAnim/10)%1;
+            x=raceTrack.getPoint(time).x();
+            y=raceTrack.getPoint(time).y();
+            z=robots[robots.length-1].height;
+            
+            
+            this.eye = new Vector(x,y,z);
+            this.center=raceTrack.getTangent(time);
+            this.up=Vector.Z;
         }
         
     }
@@ -873,7 +991,14 @@ public class RobotRace extends Base {
          * Constructs the race track, sets up display lists.
          */
         public RaceTrack() {
-            // code goes here ...
+            /**
+             * Fill the cotrolPointsOTrack Array with the control points (outside line of the track)
+             * For O track there are 4 segments, so we need 3*4=12 control Points
+             */
+            controlPointsOTrack=new Vector[]{new Vector(-20,0,1),new Vector(-20,10,1),new Vector(-10,20,1),
+                new Vector(0,20,1),new Vector(10,20,1),new Vector(20,10,1),new Vector(20,0,1),new Vector(20,-10,1),
+                new Vector(10,-20,1),new Vector(0,-20,1),new Vector(-10,-20,1),new Vector(-20,-10,1),new Vector(-20,0,1)};
+            
         }
         
         /**
@@ -883,13 +1008,13 @@ public class RobotRace extends Base {
             
             // The test track is selected
             if (0 == trackNr) {
-                if (0 == trackNr) {
-                    double n=30;            //number of points to draw the raceTrack
-                    int i,j;                //integers for the loops
-                    double dt=1/n;
+                           
+                    double n=30;    //number of points to draw the raceTrack
+                    double dt=1/n; 
+                    //This loop draws the top face of the Race Track
                     gl.glBegin(GL_QUAD_STRIP);
-                    gl.glColor3f(0.3f,0.3f,0.3f);
-                        for(i=0;i<=n;i++){      //This loop draws the top face of the Race Track
+                    gl.glColor3f(0f,0f,0f);
+                        for(int i=0;i<=n;i++){      
                             //Centerline
                             Vector v;
                             v = getPoint(dt*i);
@@ -901,10 +1026,11 @@ public class RobotRace extends Base {
                             gl.glVertex3d(x+distX, y+distY, z);     //exterior line
                         }
                     gl.glEnd();
-                        
+                    
+                    //This loop draws the exterior side of the Race Track
                     gl.glBegin(GL_QUAD_STRIP);
                     gl.glColor3f(0.5f,0.5f,0.5f);
-                        for(j=0;j<=n;j++){         //This loop draws the exterior side of the Race Track
+                        for(int j=0;j<=n;j++){         
                             Vector v;
                             v = getPoint(dt*j);
                             double x,y,z,distX,distY;
@@ -916,9 +1042,10 @@ public class RobotRace extends Base {
                         }    
                     gl.glEnd();
                     
+                    //This loop draws the interior side of the Race Track
                     gl.glBegin(GL_QUAD_STRIP);
                     gl.glColor3f(0.5f,0.5f,0.5f);
-                        for(j=0;j<=n;j++){         //This loop draws the interior side of the Race Track
+                        for(int j=0;j<=n;j++){         
                             Vector v;
                             v = getPoint(dt*j);
                             double x,y,z,distX,distY;
@@ -935,81 +1062,28 @@ public class RobotRace extends Base {
                         }    
                     gl.glEnd();
                     
-                    //following loops are to draw lines to separate each race track
-                    gl.glBegin(GL_LINE_LOOP);
-                    gl.glColor3f(1f,1f,1f);
-                        for(i=0;i<=n;i++){          //draw central line
-                            Vector v;
-                            v = getPoint(dt*j);
-                            double x,y,z;
-                            x=v.x();
-                            y=v.y();
-                            z=v.z();
-                            gl.glVertex3d(x, y, z+0.01f); 
-                        }
-                    gl.glEnd();
-                    gl.glBegin(GL_LINE_LOOP);
-                    gl.glColor3f(1f,1f,1f);
-                        for(i=0;i<=n;i++){          //draw line +1
-                            Vector v;
-                            v = getPoint(dt*j);
-                            double x,y,z,distX,distY;
-                            x=v.x();
-                            y=v.y();
-                            z=v.z();
-                            distX=1*cos(2*PI*dt*j);
-                            distY=1*sin(2*PI*dt*j);
-                            gl.glVertex3d(x+distX, y+distY, z+0.01f); 
-                        }
-                    gl.glEnd();
-                    gl.glBegin(GL_LINE_LOOP);
-                    gl.glColor3f(1f,1f,1f);
-                        for(i=0;i<=n;i++){          //draw line +2
-                            Vector v;
-                            v = getPoint(dt*j);
-                            double x,y,z,distX,distY;
-                            x=v.x();
-                            y=v.y();
-                            z=v.z();
-                            distX=2*cos(2*PI*dt*j);
-                            distY=2*sin(2*PI*dt*j);
-                            gl.glVertex3d(x+distX, y+distY, z+0.01f); 
-                        }
-                    gl.glEnd();
-                    gl.glBegin(GL_LINE_LOOP);
-                    gl.glColor3f(1f,1f,1f);
-                        for(i=0;i<=n;i++){          //draw line -1
-                            Vector v;
-                            v = getPoint(dt*j);
-                            double x,y,z,distX,distY;
-                            x=v.x();
-                            y=v.y();
-                            z=v.z();
-                            distX=1*cos(2*PI*dt*j);
-                            distY=1*sin(2*PI*dt*j);
-                            gl.glVertex3d(x-distX, y-distY, z+0.01f); 
-                        }
-                    gl.glEnd();
-                    gl.glBegin(GL_LINE_LOOP);
-                    gl.glColor3f(1f,1f,1f);
-                        for(i=0;i<=n;i++){          //draw line -2
-                            Vector v;
-                            v = getPoint(dt*j);
-                            double x,y,z,distX,distY;
-                            x=v.x();
-                            y=v.y();
-                            z=v.z();
-                            distX=2*cos(2*PI*dt*j);
-                            distY=2*sin(2*PI*dt*j);
-                            gl.glVertex3d(x-distX, y-distY, z); 
-                        }
-                    gl.glEnd();
-                    
-                }
+
             // The O-track is selected
             } else if (1 == trackNr) {
-                // code goes here ...
-                
+                double slices = 30;
+                double dt=1.0/slices;
+                gl.glBegin(GL_LINE_LOOP);
+                gl.glColor3f(0f,0f,0f);
+                for(int i=0;i<10;i+=3){
+                    
+                    Vector p0=controlPointsOTrack[i];
+                    Vector p1=controlPointsOTrack[i+1];
+                    Vector p2=controlPointsOTrack[i+2];
+                    Vector p3=controlPointsOTrack[i+3];
+                    for(int j=0;j<slices;j++){
+                        Vector v;
+                        v = getCubicBezierPnt(dt*j, p0, p1, p2, p3);
+                        gl.glVertex3d(v.x(),v.y(),v.z());
+                        System.out.println(dt*j);
+                        System.out.println(v.x()+"  "+v.y()+"   "+v.z());
+                    }
+                }
+                gl.glEnd();
             // The L-track is selected
             } else if (2 == trackNr) {
                 // code goes here ...
@@ -1056,6 +1130,7 @@ public class RobotRace extends Base {
          * Can be used to set up a display list.
          */
         public Terrain() {
+            
             // code goes here ...
         }
         
@@ -1081,5 +1156,45 @@ public class RobotRace extends Base {
     public static void main(String args[]) {
         RobotRace robotRace = new RobotRace();
     }
+    
+    
+    /**
+     * Function to evaluate a cubic Bézier segment for parameter value t. 
+     */
+    public Vector getCubicBezierPnt(double t, Vector P0, Vector P1,Vector P2, Vector P3){
+        Vector v0,v1,v2,v3;
+        double d0,d1,d2,d3;
+        d0=pow((1-t),3);
+        d1=3*t*pow((1-t),2);
+        d2=3*pow(t,2)*(1-t);
+        d3=pow(t,3);
+        v0=P0.scale(d0);
+        v1=P1.scale(d1);
+        v2=P2.scale(d2);
+        v3=P3.scale(d3);
+        return v0.add(v1.add(v2.add(v3)));
+    }
+    
+    
+    /**
+     * Function to evaluate the tangent of a cubic B´ezier segment for parameter value t. 
+     */
+    public Vector getCubicBezierTng(double t, Vector P0, Vector P1,Vector P2, Vector P3){
+        Vector v0,v1,v2,v3;
+        double d0,d11,d12,d21,d22,d3;
+        d0=-3*pow((1-t),2);
+        d11=3*pow((1-t),2);
+        d12=-6*t*(1-t);
+        d21=d12;
+        d22=3*pow(t,2);
+        d3=3*pow(t,2);
+        v0=P0.scale(d0);
+        v1=P1.scale(d11).subtract(P1.scale(d12));
+        v2=P2.scale(d21).subtract(P2.scale(d22));
+        v3=P3.scale(d3);
+        return v0.add(v1.add(v2.add(v3)));
+    }
+    
+    
     
 }
