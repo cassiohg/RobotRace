@@ -361,7 +361,7 @@ public class RobotRace extends Base {
         Shapes shapeDrawer; //object that will draw some parts of the robot
         SolidShapes solid = new SolidShapes(); //implementation of the drawing of some parts of the robot as solid shapes
         WiredShapes wired = new WiredShapes(); //implementation of the drawing of some parts of the robot as wired shapes
-        int robotSpeedMovement;
+        int robotSpeed;
         
         public Vector position; //position of the robot
         
@@ -382,7 +382,7 @@ public class RobotRace extends Base {
             
             // initial position of robot
             this.position = new Vector(x,y,z);
-            robotSpeedMovement = speed;
+            robotSpeed = speed;
             
             // width of the shoulder of the robot. shoulder cannot be too narrow
             shoulderWidth /= 2;
@@ -446,7 +446,7 @@ public class RobotRace extends Base {
                 
                 //Torso
                 //inclination of the torso depending on speed. the faster the robot the more the torso inclines forward
-                gl.glRotated(robotSpeedMovement/10, -1f, 0f, 0f);
+                gl.glRotated(robotSpeed/10, -1f, 0f, 0f);
                 //the 
                 shapeDrawer.drawDeformedCube(new Vector[]{torsoA, torsoB, torsoC, torsoD}, 
                                              new Vector[]{torsoE, torsoF, torsoG, torsoH});
@@ -465,20 +465,42 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
        
+        /**
+         * Returns a double with a value representing the height about the ground the robot
+         * should be drawn to show he is having little jumps while running. It simulate the
+         * effect of having each leg hitting the floor with step.
+         */
         private double runningBouce(){
             double bounceHeight;
             
+            
+            /**
+             * bouncing height should meet its maximum value at half the arc value of total limb possible rotation
+             * boucing height value should reach its maximum value for the second time when limbAngle reach for the first time
+             * it means the robot will bounce up and down twice for each movement of one leg. it makes the effect of each leg
+             * moving the robot up for an impulse.
+             */
             if (limbAngle < limbMovementAngle / 2 ) 
                 bounceHeight = limbAngle;
             else 
                 bounceHeight = limbMovementAngle - limbAngle;
             
+            //maximum height to bounce is 20% of the height of the robot
             return (height * 0.2 / limbMovementAngle) * bounceHeight;
         }
         
-        
+        /**
+         * Calculate the angle a limb of the robot should rotate given the time and speed
+         * of the robot.
+         */
         private void limbAngle() {
-            double time = gs.tAnim * robotSpeedMovement;
+            /**
+             * multiplying the gs.tAnim by the speed of the robot, give me an increasing 
+             * number that is bigger, the bigger the robotSpeed is. Then, this number
+             * can be used to define how fast the robot limbs rotate move. Because
+             * the faster the robot, the faster its limbs should rotate.
+             */
+            double time = gs.tAnim * robotSpeed;
             limbAngle = time % limbMovementAngle;
             if( (((long)time)/limbMovementAngle)%2 == 1 ) 
                 limbAngle = limbMovementAngle - limbAngle;
@@ -492,7 +514,6 @@ public class RobotRace extends Base {
          * (boolean backwards mean if the limb is the right side or left side)
          */
         private void limbRotation(boolean backwards) {
-
             if(backwards) 
                 gl.glRotated(maxLimbAngle - limbAngle, 1f, 0f, 0f);
             else 
