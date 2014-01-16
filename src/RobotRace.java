@@ -1000,18 +1000,31 @@ public class RobotRace extends Base {
                     double n=30;    //number of points to draw the raceTrack
                     double dt=1/n; 
                     //This loop draws the top face of the Race Track
-                    gl.glBegin(GL_QUAD_STRIP);
+                    gl.glBegin(GL_QUADS);
                     gl.glColor3f(0f,0f,0f);
-                        for(int i=0;i<=n;i++){      
+                        for(int i = 0; i == n; i++){      
                             //Centerline
-                            Vector v;
-                            v = getPoint(dt*i);
+                            Vector v = getPoint(dt*i);
                             double x,y,z,distX,distY;
                             x=v.x();    y=v.y();    z=v.z();
                             distX=2*cos(2*PI*dt*i);
                             distY=2*sin(2*PI*dt*i);
-                            gl.glVertex3d(x-distX, y-distY, z);     //interior line
-                            gl.glVertex3d(x+distX, y+distY, z);     //exterior line
+                            
+                            gl.glTexCoord2d(0, 0);
+                            gl.glVertex3d(x-distX, y-distY, z);     //back interior line
+                            gl.glTexCoord2d(1, 0);
+                            gl.glVertex3d(x+distX, y+distY, z);     //back exterior line
+                            
+                            int k = i + 1;
+                            v = getPoint(dt*k);
+                            x=v.x();    y=v.y();    z=v.z();
+                            distX=2*cos(2*PI*dt*k);
+                            distY=2*sin(2*PI*dt*k);
+                            
+                            gl.glTexCoord2d(1, 1);
+                            gl.glVertex3d(x+distX, y+distY, z);     //front exterior line
+                            gl.glTexCoord2d(0, 1);
+                            gl.glVertex3d(x-distX, y-distY, z);     //front interior line
                         }
                     gl.glEnd();
                     
