@@ -463,6 +463,7 @@ public class RobotRace extends Base {
          */
         public void draw(boolean stickFigure) {
             gl.glPushMatrix();
+                //methos that will calculate the rotation of each limb
                 limbAngle();
                 //the point where the robot starts to be drawn
                 gl.glTranslated(position.x(), position.y(), position.z() + torsoHeight + runningBouce());
@@ -579,10 +580,6 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
         
-        int initialArmAngle = -40;
-        int maxArmAngle = 60;
-        int armMovementAngle = maxArmAngle - initialArmAngle;
-        
        /**
          * Draw one arm based on the point where the arm should be drawn
          * and rotate this arm every drawing to animate the walking.
@@ -637,7 +634,7 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
         
-        
+        //exposed method to set robots position
         public void setRobotPosition(Vector point) {
             position = point;
         }
