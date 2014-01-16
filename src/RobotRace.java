@@ -943,19 +943,17 @@ public class RobotRace extends Base {
          * Computes {@code eye}, {@code center}, and {@code up}, changing each 
          * short period of time to the different camera modes
          */
+        int secondsToChangeMode = 5; //seconds before changing to next camera in auto mode
+        float lastChangeTime = 0; // last gs.tAnim when a camera has been changed in auto mode
+        int nextCamera = 0; // number of the next camera to change to in auto mode
         private void setAutoMode(){
-            double mod=(gs.tAnim%15);
-            int changeTo=(int) floor(mod);
-            System.out.println(changeTo);
-            if(changeTo<5){
-                setHelicopterMode();
-            }else if(changeTo>=5 && changeTo<10){
-                setFirstPersonMode();
-            }else {
-                setMotorCycleMode();
+            if (gs.tAnim - lastChangeTime > secondsToChangeMode) {
+                lastChangeTime = gs.tAnim;
+                nextCamera++;
+                if (nextCamera == 4 ) 
+                    nextCamera = 1;
             }
-            
-            
+            update(nextCamera);
         }
         
     }
