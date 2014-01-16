@@ -5,12 +5,8 @@ import javax.media.opengl.glu.GLUquadric;
 import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
-<<<<<<< HEAD
 import com.jogamp.opengl.util.texture.*;
-=======
 import java.nio.ByteBuffer;
-
->>>>>>> branch-2
 
 // Cássio Holanda Gonçalves 0877290 
 // Eduardo Piñar Menoyo 0875997
@@ -196,22 +192,13 @@ public class RobotRace extends Base {
         if (gs.showAxes) {
             drawAxisFrame();
         }
-<<<<<<< HEAD
         
         // Draw the first robot
-//        robots[0].draw(false);
-//        robots[1].draw(false);
+        robots[0].draw(false);
+        robots[1].draw(false);
         robots[2].draw(false);
-//        robots[3].draw(false);
-        
-        for(Robot r:robots) {
-           double time = (gs.tAnim/10)%1;
-           r.setRobotPosition(raceTrack.getPoint(time));
-           r.setRobotRotation(raceTrack.getTangent(time));
-        }
-        
-=======
->>>>>>> branch-2
+        robots[3].draw(false);
+       
         // Draw race track
         raceTrack.draw(gs.trackNr);
         
@@ -518,11 +505,9 @@ public class RobotRace extends Base {
          */
         private double runningBouce(){
             double bounceHeight;
-            
-            
             /**
              * bouncing height should meet its maximum value at half the arc value of total limb possible rotation
-             * boucing height value should reach its maximum value for the second time when limbAngle reach for the first time
+             * bouncing height value should reach its maximum value for the second time when limbAngle reach for the first time
              * it means the robot will bounce up and down twice for each movement of one leg. it makes the effect of each leg
              * moving the robot up for an impulse.
              */
@@ -534,8 +519,6 @@ public class RobotRace extends Base {
             //maximum height to bounce is 20% of the height of the robot
             return (height * 0.2 / limbMovementAngle) * bounceHeight;
         }
-<<<<<<< HEAD
-=======
         
         /**
          * Calculate the angle a limb of the robot should rotate given the time and speed
@@ -553,27 +536,6 @@ public class RobotRace extends Base {
             if( (((long)time)/limbMovementAngle)%2 == 1 ) 
                 limbAngle = limbMovementAngle - limbAngle;
         }
->>>>>>> branch-2
-        
-        /**
-         * Calculate the angle a limb of the robot should rotate given the time and speed
-         * of the robot.
-         */
-        private void limbAngle() {
-            /**
-             * multiplying the gs.tAnim by the speed of the robot, give me an increasing 
-             * number that is bigger, the bigger the robotSpeed is. Then, this number
-             * can be used to define how fast the robot limbs rotate move. Because
-             * the faster the robot, the faster its limbs should rotate.
-             */
-            double time = gs.tAnim * robotSpeed;
-            limbAngle = time % limbMovementAngle;
-            if( (((long)time)/limbMovementAngle)%2 == 1 ) 
-                limbAngle = limbMovementAngle - limbAngle;
-        }
-        
-<<<<<<< HEAD
-        
                 
         /**
          * calculates the rotation of a limb and set is rotated position
@@ -587,21 +549,6 @@ public class RobotRace extends Base {
                 gl.glRotated(minLimbAngle + limbAngle, 1f, 0f, 0f);
         }
         
-=======
-                
-        /**
-         * calculates the rotation of a limb and set is rotated position
-         * taking into consideration if that limb is moving backwards or forward
-         * (boolean backwards mean if the limb is the right side or left side)
-         */
-        private void limbRotation(boolean backwards) {
-            if(backwards) 
-                gl.glRotated(maxLimbAngle - limbAngle, 1f, 0f, 0f);
-            else 
-                gl.glRotated(minLimbAngle + limbAngle, 1f, 0f, 0f);
-        }
-        
->>>>>>> branch-2
         /**
          * Draw one leg based on the point where the leg should be drawn
          * and rotate this leg every drawing to animate the walking.
